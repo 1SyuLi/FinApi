@@ -19,6 +19,19 @@ function verifyIfExistAccountCPF(req, res, next) {
     return next();
 }
 
+function getBalance(statement) {
+    const balance = statement.reduce((acc, operation) => {
+        if (operation.type === 'credit') {
+            return acc + operation.value;
+        } else {
+            return acc - operation.value;
+        }
+
+    }, 0);
+
+    return balance;
+}
+
 app.listen(3333, () => {
     console.log('Server open on port 3333 🔥');
 });
@@ -61,4 +74,25 @@ app.post("/deposit", verifyIfExistAccountCPF, (req, res) => {
     custumer.statement.push(statementOperation);
 
     return res.status(201).send();
-})
+});
+
+app.post("/withdraw", verifyIfExistAccountCPF, (req, res) => {
+    const { custumer } = req;
+    const { amount } = req.body;
+
+    const balance = getBalance(custumer.statement);
+    console.log(balance);
+
+    if (balance < amount) {
+        return res.status(400).json({ error: "Insufficient balance" });
+    }
+
+    const statementOperation = {
+        created_at: new Date(),
+        type: "debit",
+        amount,
+    }
+
+    custumer.statement.push(statementOperation);
+    return res.status(201).send();
+});
