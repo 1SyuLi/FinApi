@@ -110,3 +110,22 @@ app.get("/statement/date", verifyIfExistAccountCPF, (req, res) => {
 
     return res.json(statement);
 });
+
+app.put("/account", verifyIfExistAccountCPF, (req, res) => {
+    const { custumer } = req;
+    const { name } = req.body;
+
+    custumer.name = name;
+    return res.status(200).send();
+});
+
+app.get("/account", verifyIfExistAccountCPF, (req, res) => {
+    const { custumer } = req;
+    return res.json(custumer);
+});
+
+app.delete("/account", verifyIfExistAccountCPF, (req, res) => {
+    const { custumer } = req;
+    custumers.splice(custumer, 1);
+    return res.status(200).json(custumers);
+});
